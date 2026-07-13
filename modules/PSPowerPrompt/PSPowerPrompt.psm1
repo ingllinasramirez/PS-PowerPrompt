@@ -34,12 +34,32 @@ function Get-PPPaths {
     }
 }
 
+function Test-PPSoundEnabled {
+    param([Parameter(Mandatory)][ValidateSet('Start','Success','Error','Navigation','Variable')][string]$Type)
+
+    $config = Get-PPConfig
+    if (-not $config.agent.soundEnabled) { return $false }
+    if (-not $config.agent.PSObject.Properties['sounds']) { return $true }
+
+    $propertyName = switch ($Type) {
+        'Start' { 'startup' }
+        'Success' { 'success' }
+        'Error' { 'error' }
+        'Navigation' { 'navigation' }
+        'Variable' { 'variables' }
+    }
+
+    $property = $config.agent.sounds.PSObject.Properties[$propertyName]
+    if ($null -eq $property) { return $true }
+    return [bool]$property.Value
+}
+
 function Invoke-PPSound {
-    param([ValidateSet('Start','Success','Error')][string]$Type)
+    param([ValidateSet('Start','Success','Error','Navigation','Variable')][string]$Type)
 
     try {
+        if (-not (Test-PPSoundEnabled -Type $Type)) { return }
         $config = Get-PPConfig
-        if (-not $config.agent.soundEnabled) { return }
 
         if ($Type -eq 'Start') {
             $soundPath = $config.agent.startupSound
@@ -47,23 +67,18 @@ function Invoke-PPSound {
 
             if ($soundPath -and (Test-Path -LiteralPath $soundPath) -and (Test-Path -LiteralPath $playerScript)) {
                 Start-Process pwsh -WindowStyle Hidden -ArgumentList @(
-                    '-NoLogo',
-                    '-NoProfile',
-                    '-STA',
-                    '-ExecutionPolicy',
-                    'Bypass',
-                    '-File',
-                    "`"$playerScript`"",
-                    '-Path',
-                    "`"$soundPath`""
+                    '-NoLogo','-NoProfile','-STA','-ExecutionPolicy','Bypass','-File',
+                    "`"$playerScript`"",'-Path',"`"$soundPath`""
                 ) | Out-Null
                 return
             }
         }
 
         switch ($Type) {
-            'Success' { [System.Media.SystemSounds]::Exclamation.Play() }
+            'Success' { [System.Media.SystemSounds]::Asterisk.Play() }
             'Error' { [System.Media.SystemSounds]::Hand.Play() }
+            'Navigation' { [System.Media.SystemSounds]::Question.Play() }
+            'Variable' { [System.Media.SystemSounds]::Beep.Play() }
         }
     } catch {}
 }
@@ -85,6 +100,7 @@ function Start-PPWorkSession {
         $active = $true
     } catch {
         Write-Warning "No fue posible iniciar la captura automatica: $($_.Exception.Message)"
+        Invoke-PPSound Error
         $active = $false
     }
 
@@ -148,6 +164,7 @@ function Stop-PPSession {
         Stop-Transcript | Out-Null
         $script:Session.IsActive = $false
         Write-Host "Captura finalizada: $($script:Session.TranscriptPath)" -ForegroundColor Green
+        Invoke-PPSound Success
     } catch {
         Invoke-PPSound Error
         Write-Warning $_.Exception.Message
@@ -285,6 +302,7 @@ function Set-PPSessionVariable {
     $script:SessionVariables[$key] = $resolved
     Set-Item -Path "Env:PP_$key" -Value $resolved
     Write-Host "Variable creada: `$PP_$key = $resolved" -ForegroundColor Green
+    Invoke-PPSound Variable
 }
 
 function Get-PPSessionVariable {
@@ -313,6 +331,7 @@ function Remove-PPSessionVariable {
         $script:SessionVariables.Remove($key)
         Remove-Item -Path "Env:PP_$key" -ErrorAction SilentlyContinue
         Write-Host "Variable eliminada: $key" -ForegroundColor Green
+        Invoke-PPSound Variable
     }
 }
 
@@ -323,10 +342,12 @@ function Set-PPLocation {
     $key = $NameOrPath.ToUpperInvariant()
     $target = if ($script:SessionVariables.Contains($key)) { $script:SessionVariables[$key] } else { $NameOrPath }
     if (-not (Test-Path -LiteralPath $target -PathType Container)) {
+        Invoke-PPSound Error
         throw "No existe la carpeta: $target"
     }
     Set-Location -LiteralPath $target
     $script:SessionVariables['PWD'] = (Get-Location).Path
+    Invoke-PPSound Navigation
 }
 
 Set-Alias pp-start Start-PPWorkSession
