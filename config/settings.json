@@ -1,11 +1,20 @@
 {
   "version": 1,
-  "assistantName": "PowerPrompt",
-  "greetingEnabled": true,
-  "autoStartSession": true,
-  "exportDirectory": "Documents/PowerPrompt/Sessions",
-  "defaultExportFormat": "markdown",
-  "includeEnvironmentMetadata": true,
-  "openLastExportAfterStop": false,
+  "user": {
+    "displayName": "Juan Pablo"
+  },
+  "agent": {
+    "name": "PowerPrompt",
+    "mode": "greeting-only",
+    "message": "Sesion de trabajo iniciada. Estoy listo para acompanarte con tus comandos."
+  },
+  "paths": {
+    "sessions": "%USERPROFILE%\\Documents\\PS-PowerPrompt\\Sessions",
+    "exports": "%USERPROFILE%\\Documents\\PS-PowerPrompt\\Exports"
+  },
+  "export": {
+    "defaultFormat": "Markdown",
+    "includeMetadata": true
+  },
   "retentionDays": 90
 }
