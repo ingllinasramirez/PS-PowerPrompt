@@ -26,7 +26,7 @@ try {
 
     $testScript = Join-Path $sourceRoot.FullName 'scripts\Test-PSPowerPrompt.ps1'
     if (Test-Path -LiteralPath $testScript -PathType Leaf) {
-        & $testScript -ProjectRoot $sourceRoot.FullName
+        & pwsh -NoLogo -NoProfile -ExecutionPolicy Bypass -File $testScript -ProjectRoot $sourceRoot.FullName
         if ($LASTEXITCODE -ne 0) {
             throw 'La version descargada no supero las pruebas automaticas.'
         }
