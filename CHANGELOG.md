@@ -11,6 +11,7 @@ Todos los cambios relevantes de PS-PowerPrompt se documentan en este archivo.
 - Configuración interactiva de nombre, carpetas, formatos, sonidos y panel.
 - Registro automático de sesiones mediante `Start-Transcript`.
 - Exportación a Markdown, texto y JSON.
+- Exportación estructurada JSONL mediante `pp-export-jsonl`.
 - Exportación protegida mediante `pp-export-safe`.
 - Sanitización preventiva de contraseñas, tokens, API keys, encabezados de autorización y credenciales frecuentes en cadenas de conexión.
 - Panel flotante para exportar y abrir archivos.
@@ -34,16 +35,18 @@ Todos los cambios relevantes de PS-PowerPrompt se documentan en este archivo.
 - Copia y detección del archivo de sonido.
 - Reproductor de MP3 que podía permanecer bloqueado.
 - Registro del perfil global del usuario sin sobrescribir configuraciones existentes.
+- Ejecución de las pruebas del actualizador en un proceso aislado para evitar cerrar prematuramente la actualización.
 
 ### Documentación
 
 - Visión, alcance y arquitectura inicial en `README.md`.
 - Guía de pruebas en `docs/TESTING.md`.
 - Referencia de comandos en `docs/COMMANDS.md`.
+- Guía de formatos y sanitización en `docs/EXPORTS.md`.
 - Historial consolidado de cambios en `CHANGELOG.md`.
 
 ## Estado actual
 
-La versión `0.5.0-beta` cubre el MVP funcional: instalación, captura de sesiones, exportación para IA, rutas rápidas, reinicio de sesiones, ayuda, sonidos, diagnóstico, actualización, desinstalación y protección preventiva de información sensible.
+La versión `0.5.0-beta` cubre el MVP funcional: instalación, captura de sesiones, exportación para IA, JSONL estructurado, rutas rápidas, reinicio de sesiones, ayuda, sonidos, diagnóstico, actualización, desinstalación y protección preventiva de información sensible.
 
 La sanitización automática es una ayuda de seguridad y no sustituye la revisión humana antes de compartir archivos.
