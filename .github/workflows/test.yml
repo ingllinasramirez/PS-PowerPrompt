@@ -1,0 +1,20 @@
+name: Validate PS-PowerPrompt
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Run PowerShell validation
+        shell: pwsh
+        run: ./scripts/Test-PSPowerPrompt.ps1 -ProjectRoot $PWD
