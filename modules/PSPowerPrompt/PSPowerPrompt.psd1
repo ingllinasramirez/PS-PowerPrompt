@@ -26,13 +26,14 @@
         'Set-PPLocation',
         'Protect-PPText',
         'Export-PPSafeSession',
+        'Export-PPJsonlSession',
         'Invoke-PPUpdate',
         'Invoke-PPUninstall',
         'Test-PPInstallation'
     )
     AliasesToExport = @(
         'pp-start', 'pp-status', 'pp-new', 'pp-restart', 'pp-help',
-        'pp-export', 'pp-export-safe', 'pp-open', 'pp-stop', 'pp-panel',
+        'pp-export', 'pp-export-safe', 'pp-export-jsonl', 'pp-open', 'pp-stop', 'pp-panel',
         'pp-set', 'pp-vars', 'pp-unset', 'pp-go',
         'pp-update', 'pp-uninstall', 'pp-doctor'
     )
