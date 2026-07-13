@@ -1,20 +1,15 @@
 {
-  "version": 1,
+  "version": 2,
   "user": {
     "displayName": "Juan Pablo"
   },
   "agent": {
     "name": "PowerPrompt",
     "mode": "greeting-only",
-    "message": "Sesion de trabajo iniciada. Estoy listo para acompanarte con tus comandos."
+    "message": "Sesion de trabajo iniciada. Estoy listo para acompanarte con tus comandos.",
+    "soundEnabled": true
   },
   "paths": {
     "sessions": "%USERPROFILE%\\Documents\\PS-PowerPrompt\\Sessions",
     "exports": "%USERPROFILE%\\Documents\\PS-PowerPrompt\\Exports"
   },
-  "export": {
-    "defaultFormat": "Markdown",
-    "includeMetadata": true
-  },
-  "retentionDays": 90
-}
