@@ -1,0 +1,11 @@
+{
+  "version": 1,
+  "assistantName": "PowerPrompt",
+  "greetingEnabled": true,
+  "autoStartSession": true,
+  "exportDirectory": "Documents/PowerPrompt/Sessions",
+  "defaultExportFormat": "markdown",
+  "includeEnvironmentMetadata": true,
+  "openLastExportAfterStop": false,
+  "retentionDays": 90
+}
