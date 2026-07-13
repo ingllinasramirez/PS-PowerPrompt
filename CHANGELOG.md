@@ -2,7 +2,7 @@
 
 Todos los cambios relevantes de PS-PowerPrompt se documentan en este archivo.
 
-## En desarrollo
+## 0.5.0-beta
 
 ### Agregado
 
@@ -11,6 +11,8 @@ Todos los cambios relevantes de PS-PowerPrompt se documentan en este archivo.
 - Configuración interactiva de nombre, carpetas, formatos, sonidos y panel.
 - Registro automático de sesiones mediante `Start-Transcript`.
 - Exportación a Markdown, texto y JSON.
+- Exportación protegida mediante `pp-export-safe`.
+- Sanitización preventiva de contraseñas, tokens, API keys, encabezados de autorización y credenciales frecuentes en cadenas de conexión.
 - Panel flotante para exportar y abrir archivos.
 - Menú contextual `Iniciar PowerPrompt desde aquí`.
 - Variables temporales de sesión mediante `pp-set`, `pp-vars`, `pp-unset` y `pp-go`.
@@ -19,6 +21,11 @@ Todos los cambios relevantes de PS-PowerPrompt se documentan en este archivo.
 - Comando `pp-help` para consultar la ayuda dentro de PowerShell.
 - Comando `pp-new` para crear una sesión nueva sin cerrar la terminal.
 - Comando `pp-restart` para reiniciar la sesión conservando variables personalizadas.
+- Comando `pp-doctor` para revisar el estado de la instalación.
+- Comando `pp-update` para actualizar desde GitHub conservando la configuración y creando respaldo.
+- Comando `pp-uninstall` para retirar PowerPrompt y conservar o eliminar los datos según la opción elegida.
+- Pruebas automáticas de archivos requeridos, sintaxis, manifiesto, importación y comandos exportados.
+- Flujo de GitHub Actions para ejecutar las pruebas en Windows.
 
 ### Corregido
 
@@ -33,7 +40,10 @@ Todos los cambios relevantes de PS-PowerPrompt se documentan en este archivo.
 - Visión, alcance y arquitectura inicial en `README.md`.
 - Guía de pruebas en `docs/TESTING.md`.
 - Referencia de comandos en `docs/COMMANDS.md`.
+- Historial consolidado de cambios en `CHANGELOG.md`.
 
 ## Estado actual
 
-El proyecto se encuentra en una etapa de MVP funcional. Ya permite iniciar, registrar, reiniciar y exportar sesiones de PowerShell, además de ofrecer accesos rápidos, sonidos y un asistente básico de bienvenida.
+La versión `0.5.0-beta` cubre el MVP funcional: instalación, captura de sesiones, exportación para IA, rutas rápidas, reinicio de sesiones, ayuda, sonidos, diagnóstico, actualización, desinstalación y protección preventiva de información sensible.
+
+La sanitización automática es una ayuda de seguridad y no sustituye la revisión humana antes de compartir archivos.
