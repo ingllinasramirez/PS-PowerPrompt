@@ -1,67 +1,68 @@
 [CmdletBinding()]
 param(
     [Parameter(Mandatory)]
-    [string]$Path
+    [string]$Path,
+
+    [ValidateRange(1, 15)]
+    [int]$MaxSeconds = 8
 )
 
 $ErrorActionPreference = 'Stop'
 
 if (-not (Test-Path -LiteralPath $Path -PathType Leaf)) {
-    exit 0
+    throw "No se encontro el archivo de sonido: $Path"
 }
 
 $resolvedPath = (Resolve-Path -LiteralPath $Path).Path
+$alias = 'PowerPromptStartupSound'
+
+Add-Type -TypeDefinition @'
+using System;
+using System.Runtime.InteropServices;
+using System.Text;
+
+public static class PowerPromptMci
+{
+    [DllImport("winmm.dll", CharSet = CharSet.Auto)]
+    public static extern int mciSendString(
+        string command,
+        StringBuilder returnValue,
+        int returnLength,
+        IntPtr winHandle
+    );
+}
+'@
+
+function Invoke-MciCommand {
+    param(
+        [Parameter(Mandatory)]
+        [string]$Command,
+        [int]$BufferLength = 0
+    )
+
+    $buffer = if ($BufferLength -gt 0) { [Text.StringBuilder]::new($BufferLength) } else { $null }
+    $result = [PowerPromptMci]::mciSendString($Command, $buffer, $BufferLength, [IntPtr]::Zero)
+
+    if ($result -ne 0) {
+        throw "Windows no pudo reproducir el MP3. Codigo MCI: $result. Comando: $Command"
+    }
+
+    if ($buffer) { return $buffer.ToString() }
+}
 
 try {
-    $wmp = New-Object -ComObject WMPlayer.OCX
-    $wmp.settings.volume = 70
-    $wmp.URL = $resolvedPath
-    $wmp.controls.play()
+    try { Invoke-MciCommand "close $alias" } catch {}
+    Invoke-MciCommand ('open "{0}" type mpegvideo alias {1}' -f $resolvedPath, $alias)
+    Invoke-MciCommand "setaudio $alias volume to 800"
+    Invoke-MciCommand "play $alias"
 
-    $deadline = (Get-Date).AddSeconds(10)
-    while ((Get-Date) -lt $deadline) {
+    $deadline = (Get-Date).AddSeconds($MaxSeconds)
+    do {
         Start-Sleep -Milliseconds 100
-
-        if ($wmp.playState -eq 3) {
-            break
-        }
-    }
-
-    $durationMs = 2500
-    if ($wmp.currentMedia -and $wmp.currentMedia.duration -gt 0) {
-        $durationMs = [Math]::Min([Math]::Max([int]($wmp.currentMedia.duration * 1000) + 250, 500), 10000)
-    }
-
-    Start-Sleep -Milliseconds $durationMs
-    $wmp.controls.stop()
-    [void][System.Runtime.InteropServices.Marshal]::ReleaseComObject($wmp)
-    exit 0
+        $mode = (Invoke-MciCommand "status $alias mode" -BufferLength 64).Trim().ToLowerInvariant()
+    } while ($mode -eq 'playing' -and (Get-Date) -lt $deadline)
 }
-catch {
-    try {
-        Add-Type -AssemblyName PresentationCore
-        $player = [System.Windows.Media.MediaPlayer]::new()
-        $player.Open([Uri]::new($resolvedPath))
-
-        $deadline = (Get-Date).AddSeconds(5)
-        while (-not $player.NaturalDuration.HasTimeSpan -and (Get-Date) -lt $deadline) {
-            Start-Sleep -Milliseconds 100
-        }
-
-        $player.Volume = 0.7
-        $player.Play()
-
-        $durationMs = 2500
-        if ($player.NaturalDuration.HasTimeSpan) {
-            $durationMs = [Math]::Min([Math]::Max([int]$player.NaturalDuration.TimeSpan.TotalMilliseconds + 250, 500), 10000)
-        }
-
-        Start-Sleep -Milliseconds $durationMs
-        $player.Stop()
-        $player.Close()
-        exit 0
-    }
-    catch {
-        exit 0
-    }
+finally {
+    try { Invoke-MciCommand "stop $alias" } catch {}
+    try { Invoke-MciCommand "close $alias" } catch {}
 }
