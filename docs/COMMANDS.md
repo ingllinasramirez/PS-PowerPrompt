@@ -46,7 +46,7 @@ Inicia la captura cuando no existe una sesión activa.
 pp-start
 ```
 
-## Ayuda
+## Ayuda y diagnóstico
 
 ### `pp-help`
 
@@ -54,6 +54,14 @@ Muestra dentro de PowerShell la lista de comandos, descripciones y ejemplos prin
 
 ```powershell
 pp-help
+```
+
+### `pp-doctor`
+
+Verifica que la instalación, configuración, perfil, scripts y comandos principales estén disponibles.
+
+```powershell
+pp-doctor
 ```
 
 ## Exportación
@@ -73,6 +81,17 @@ pp-export -Format Markdown
 pp-export -Format Text
 pp-export -Format Json
 ```
+
+### `pp-export-safe`
+
+Exporta la sesión y aplica una limpieza preventiva para ocultar patrones frecuentes de información sensible, como contraseñas, tokens, API keys y encabezados de autorización.
+
+```powershell
+pp-export-safe
+pp-export-safe -Format Markdown
+```
+
+La sanitización es una protección de apoyo y no reemplaza la revisión humana antes de compartir un archivo.
 
 ### `pp-open`
 
@@ -136,6 +155,34 @@ Cambia el directorio actual usando una variable o una ruta directa.
 pp-go RUTAC
 pp-go "C:\Proyectos\otro-proyecto"
 ```
+
+## Mantenimiento
+
+### `pp-update`
+
+Descarga la rama principal del repositorio, ejecuta las pruebas automáticas, crea un respaldo y actualiza los archivos instalados sin reemplazar la configuración del usuario.
+
+```powershell
+pp-update
+```
+
+Después de actualizar, ejecuta `pp-restart` o abre una terminal nueva.
+
+### `pp-uninstall`
+
+Retira el módulo, scripts, panel, menú contextual y bloque del perfil. De forma predeterminada conserva la configuración y los archivos de sesiones/exportaciones.
+
+```powershell
+pp-uninstall
+```
+
+Para eliminar también la configuración y las carpetas de datos configuradas:
+
+```powershell
+pp-uninstall -RemoveData
+```
+
+El comando pide confirmación antes de continuar.
 
 ## Diferencia entre `pp-new` y `pp-restart`
 
