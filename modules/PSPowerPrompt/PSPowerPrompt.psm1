@@ -36,11 +36,32 @@ function Get-PPPaths {
 
 function Invoke-PPSound {
     param([ValidateSet('Start','Success','Error')][string]$Type)
+
     try {
         $config = Get-PPConfig
         if (-not $config.agent.soundEnabled) { return }
+
+        if ($Type -eq 'Start') {
+            $soundPath = $config.agent.startupSound
+            $playerScript = Join-Path $HOME '.ps-powerprompt\scripts\Play-PowerPromptStartupSound.ps1'
+
+            if ($soundPath -and (Test-Path -LiteralPath $soundPath) -and (Test-Path -LiteralPath $playerScript)) {
+                Start-Process pwsh -WindowStyle Hidden -ArgumentList @(
+                    '-NoLogo',
+                    '-NoProfile',
+                    '-STA',
+                    '-ExecutionPolicy',
+                    'Bypass',
+                    '-File',
+                    "`"$playerScript`"",
+                    '-Path',
+                    "`"$soundPath`""
+                ) | Out-Null
+                return
+            }
+        }
+
         switch ($Type) {
-            'Start' { [System.Media.SystemSounds]::Asterisk.Play() }
             'Success' { [System.Media.SystemSounds]::Exclamation.Play() }
             'Error' { [System.Media.SystemSounds]::Hand.Play() }
         }
