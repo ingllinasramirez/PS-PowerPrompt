@@ -52,6 +52,45 @@ function Export-PPSafeSession {
     return $path
 }
 
+function Export-PPJsonlSession {
+    [CmdletBinding()]
+    param([switch]$Sanitize)
+
+    $exportCommand = Get-Command Export-PPSession -ErrorAction Stop
+    $jsonPath = & $exportCommand -Format Json
+
+    if (-not $jsonPath -or -not (Test-Path -LiteralPath $jsonPath -PathType Leaf)) {
+        throw 'No fue posible localizar la exportacion JSON base.'
+    }
+
+    $payload = Get-Content -LiteralPath $jsonPath -Raw | ConvertFrom-Json
+    $target = [System.IO.Path]::ChangeExtension($jsonPath, '.jsonl')
+    $events = [System.Collections.Generic.List[string]]::new()
+
+    $metadataEvent = [ordered]@{
+        type = 'session_metadata'
+        exportedAt = (Get-Date).ToString('o')
+        metadata = $payload.metadata
+    }
+    $events.Add(($metadataEvent | ConvertTo-Json -Compress -Depth 8))
+
+    $lineNumber = 0
+    foreach ($line in ([string]$payload.transcript -split "`r?`n")) {
+        $lineNumber++
+        $value = if ($Sanitize) { Protect-PPText -Text $line } else { $line }
+        $event = [ordered]@{
+            type = 'transcript_line'
+            sequence = $lineNumber
+            text = $value
+        }
+        $events.Add(($event | ConvertTo-Json -Compress -Depth 5))
+    }
+
+    Set-Content -LiteralPath $target -Value $events -Encoding utf8
+    Write-Host "Exportacion JSONL creada: $target" -ForegroundColor Green
+    return $target
+}
+
 function Invoke-PPUpdate {
     [CmdletBinding()]
     param()
@@ -99,7 +138,7 @@ function Test-PPInstallation {
     }
 
     $requiredCommands = @(
-        'pp-status','pp-export','pp-export-safe','pp-open','pp-stop','pp-panel',
+        'pp-status','pp-export','pp-export-safe','pp-export-jsonl','pp-open','pp-stop','pp-panel',
         'pp-set','pp-vars','pp-unset','pp-go','pp-new','pp-restart','pp-help',
         'pp-update','pp-uninstall','pp-doctor'
     )
@@ -131,8 +170,9 @@ function Test-PPInstallation {
 }
 
 Set-Alias pp-export-safe Export-PPSafeSession
+Set-Alias pp-export-jsonl Export-PPJsonlSession
 Set-Alias pp-update Invoke-PPUpdate
 Set-Alias pp-uninstall Invoke-PPUninstall
 Set-Alias pp-doctor Test-PPInstallation
 
-Export-ModuleMember -Function Protect-PPText, Export-PPSafeSession, Invoke-PPUpdate, Invoke-PPUninstall, Test-PPInstallation -Alias pp-export-safe, pp-update, pp-uninstall, pp-doctor
+Export-ModuleMember -Function Protect-PPText, Export-PPSafeSession, Export-PPJsonlSession, Invoke-PPUpdate, Invoke-PPUninstall, Test-PPInstallation -Alias pp-export-safe, pp-export-jsonl, pp-update, pp-uninstall, pp-doctor
