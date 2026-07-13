@@ -1,244 +1,372 @@
 # PS-PowerPrompt
 
-Entorno personalizado para PowerShell orientado a productividad, trazabilidad de sesiones y asistencia inteligente.
+Entorno personalizado para PowerShell 7 que inicia una sesión de trabajo, registra lo que ocurre en la terminal y permite exportarlo fácilmente para revisión, soporte o uso con herramientas de inteligencia artificial.
 
-## Objetivo
+**Versión actual:** `0.5.0-beta`
 
-PS-PowerPrompt busca convertir una sesión normal de PowerShell en un entorno de trabajo más claro, portable y fácil de compartir con personas o con herramientas de inteligencia artificial.
+## Qué incluye
 
-La prioridad inicial del proyecto es resolver dos necesidades:
+- Inicio automático de una sesión al abrir PowerShell.
+- Registro de comandos, salidas y errores mediante `Start-Transcript`.
+- Exportación en Markdown, texto y JSON.
+- Exportación protegida para ocultar patrones frecuentes de información sensible.
+- Reinicio o creación de una sesión nueva sin cerrar la terminal.
+- Variables temporales para guardar rutas y navegar rápidamente.
+- Panel flotante para exportar y abrir archivos.
+- Menú contextual de Windows: **Iniciar PowerPrompt desde aquí**.
+- Sonido personalizado al iniciar y sonidos del sistema para confirmaciones y errores.
+- Comandos de diagnóstico, actualización y desinstalación.
 
-1. Exportar de forma sencilla lo que ocurre en la terminal, sin tener que seleccionar, copiar y pegar manualmente.
-2. Iniciar cada sesión con un asistente básico que salude al usuario, prepare el entorno de trabajo y deje lista la captura de la sesión.
+## Requisitos
 
-## Alcance inicial
+- Windows 10 u 11.
+- PowerShell 7 o superior.
+- Conexión a Internet durante la primera instalación si PowerShell 7 no está instalado.
+- `winget` disponible si el instalador necesita instalar PowerShell 7 automáticamente.
 
-### 1. Captura y exportación de la sesión
+## Instalación rápida
 
-El sistema deberá poder registrar:
+### 1. Descargar el proyecto
 
-- Comandos ejecutados.
-- Salida estándar.
-- Mensajes de error.
-- Fecha y hora de inicio y fin.
-- Equipo y usuario de la sesión.
-- Ruta de trabajo actual.
-- Versión de PowerShell.
+En GitHub, abre el repositorio y selecciona:
 
-La exportación deberá generarse en formatos fáciles de leer tanto por personas como por inteligencias artificiales.
+```text
+Code > Download ZIP
+```
 
-Formatos previstos para el MVP:
+Descomprime el archivo en una carpeta local.
 
-- `TXT`: copia legible de la sesión.
-- `MD`: sesión estructurada en Markdown.
-- `JSONL`: eventos de consola línea por línea, útiles para procesamiento automático.
-
-Ejemplo conceptual de una sesión en Markdown:
-
-```markdown
-# Sesión de PowerShell
-
-- Inicio: 2026-07-13 10:30:00
-- Equipo: SISTEMAS
-- PowerShell: 7.6.3
-- Ruta inicial: C:\Proyectos
-
-## Comando
+También puedes clonarlo con Git:
 
 ```powershell
-composer install
+git clone https://github.com/ingllinasramirez/PS-PowerPrompt.git
+cd PS-PowerPrompt
 ```
 
-## Salida
+### 2. Ejecutar el instalador
+
+Haz doble clic en:
 
 ```text
-Installing dependencies...
+install.bat
 ```
 
-## Estado
+También puedes ejecutarlo desde PowerShell:
 
-Código de salida: 0
+```powershell
+.\install.ps1
 ```
 
-### 2. Asistente de inicio
+El instalador preguntará por:
 
-En la primera versión, el asistente no modificará comandos ni tomará decisiones por el usuario.
+- Nombre que se mostrará en el saludo.
+- Carpeta de exportaciones.
+- Carpeta de sesiones.
+- Formato de exportación predeterminado.
+- Reproducción del sonido de inicio.
+- Apertura automática de archivos exportados.
+- Inicio del panel flotante.
+- Instalación del menú contextual de Windows.
 
-Su función será:
+Puedes presionar `Enter` para aceptar cada valor predeterminado.
 
-- Saludar al usuario.
-- Mostrar la fecha y hora.
-- Indicar la ruta actual.
-- Detectar la versión de PowerShell.
-- Confirmar que la sesión se está registrando.
-- Crear una carpeta de trabajo para los registros.
-- Mostrar comandos rápidos disponibles.
+### 3. Abrir PowerShell
 
-Ejemplo esperado:
+Al finalizar, el instalador abrirá PowerShell 7. También puedes cerrar la ventana y abrir una terminal nueva.
+
+Deberías ver un mensaje similar a este:
 
 ```text
-Hola, Juan Pablo.
-Tu sesión de trabajo ha comenzado.
-PowerShell 7.6.3
-Ruta actual: C:\Proyectos\PS-PowerPrompt
-Registro activo: Documents\PowerPrompt\Sessions\2026-07-13_10-30-00
+[PowerPrompt] Buenos días, Juan.
+Sesión de trabajo iniciada.
+Sesión de trabajo iniciada: a1b2c3d4
+Directorio: C:\Proyectos
+PowerShell: 7.x
 ```
 
-## Visión futura del asistente
+## Primeros comandos
 
-En fases posteriores, el asistente podrá:
-
-- Explicar comandos antes de ejecutarlos.
-- Detectar errores frecuentes.
-- Sugerir correcciones.
-- Proponer comandos más seguros o eficientes.
-- Resumir la sesión.
-- Preparar automáticamente contexto para enviarlo a una IA.
-- Ocultar o anonimizar datos sensibles antes de exportar.
-- Integrarse con una API de inteligencia artificial.
-
-## Arquitectura propuesta
-
-```text
-PS-PowerPrompt/
-├── install.bat
-├── install.ps1
-├── update.ps1
-├── uninstall.ps1
-├── profile/
-│   └── Microsoft.PowerShell_profile.ps1
-├── modules/
-│   └── PowerPrompt/
-│       ├── PowerPrompt.psd1
-│       ├── PowerPrompt.psm1
-│       ├── Public/
-│       └── Private/
-├── config/
-│   └── settings.example.json
-├── themes/
-│   └── powerprompt.omp.json
-├── docs/
-└── README.md
-```
-
-## Responsabilidad de cada componente
-
-### `install.bat`
-
-Punto de entrada para usuarios que prefieran hacer doble clic.
-
-Su responsabilidad será mínima:
-
-- Comprobar que PowerShell está disponible.
-- Lanzar `install.ps1` con los parámetros adecuados.
-- Mostrar un mensaje claro si ocurre un error.
-
-### `install.ps1`
-
-Contendrá la lógica principal de instalación:
-
-- Verificar PowerShell 7.
-- Verificar Windows Terminal.
-- Instalar dependencias faltantes.
-- Crear copias de seguridad del perfil existente.
-- Copiar el módulo y la configuración.
-- Registrar el perfil de PS-PowerPrompt.
-- Validar que la instalación haya quedado operativa.
-
-### Perfil de PowerShell
-
-El perfil cargará el módulo y ejecutará el inicio de sesión de PS-PowerPrompt.
-
-### Módulo `PowerPrompt`
-
-Contendrá las funciones reutilizables del proyecto, por ejemplo:
-
-- `Start-PowerPromptSession`
-- `Stop-PowerPromptSession`
-- `Export-PowerPromptSession`
-- `Show-PowerPromptWelcome`
-- `Get-PowerPromptStatus`
-
-## Principios del proyecto
-
-- La instalación debe ser repetible.
-- El instalador debe poder ejecutarse en otro computador.
-- El perfil existente del usuario no debe perderse.
-- Toda modificación debe crear una copia de seguridad.
-- Los archivos generados deben ser legibles sin depender de software propietario.
-- No se deben guardar contraseñas, tokens ni secretos sin advertencia.
-- El usuario debe mantener el control de los comandos ejecutados.
-- El asistente no ejecutará correcciones automáticamente en las primeras versiones.
-
-## MVP propuesto
-
-La primera versión funcional deberá:
-
-- Instalar PowerShell 7 si no está disponible.
-- Preparar el perfil del usuario.
-- Saludar al abrir PowerShell.
-- Crear una carpeta por sesión.
-- Iniciar una transcripción automáticamente.
-- Guardar metadatos básicos de la sesión.
-- Detener y cerrar correctamente el registro.
-- Exportar la sesión a Markdown.
-- Incluir un comando para abrir la carpeta de la sesión.
-
-Comandos previstos:
+Ver el estado de la sesión:
 
 ```powershell
 pp-status
-pp-export
-pp-open
-pp-stop
+```
+
+Mostrar la ayuda integrada:
+
+```powershell
 pp-help
 ```
 
-## Hoja de ruta
+Exportar la sesión actual:
 
-### Fase 1. Base del proyecto
+```powershell
+pp-export
+```
 
-- Definir arquitectura.
-- Crear instalador inicial.
-- Crear módulo de PowerShell.
-- Crear saludo de inicio.
-- Crear registro automático por sesión.
+Exportar ocultando patrones frecuentes de datos sensibles:
 
-### Fase 2. Exportación para IA
+```powershell
+pp-export-safe
+```
 
-- Convertir la sesión a Markdown.
-- Generar eventos en JSONL.
-- Separar comandos, salida y errores.
-- Agregar metadatos del entorno.
+Abrir el último archivo exportado:
 
-### Fase 3. Asistente local
+```powershell
+pp-open
+```
 
-- Ayuda contextual sobre comandos.
-- Sugerencias sin ejecución automática.
-- Resumen de errores de la sesión.
+## Comandos disponibles
 
-### Fase 4. Integración con IA
+### Sesiones
 
-- Integración opcional mediante API.
-- Resumen automático de sesiones.
-- Sugerencias de corrección.
-- Sanitización de información sensible.
+| Comando | Descripción |
+|---|---|
+| `pp-status` | Muestra el estado de la sesión actual. |
+| `pp-new` | Finaliza la sesión actual y crea una nueva, eliminando variables personalizadas. |
+| `pp-restart` | Reinicia la sesión y conserva las variables personalizadas. |
+| `pp-stop` | Detiene la captura actual sin cerrar PowerShell. |
+| `pp-start` | Inicia una captura cuando no hay una sesión activa. |
+| `pp-help` | Muestra la ayuda y ejemplos dentro de PowerShell. |
 
-## Estado actual
+### Exportación
 
-Proyecto en etapa inicial de definición y construcción del MVP.
+| Comando | Descripción |
+|---|---|
+| `pp-export` | Exporta la sesión en el formato configurado. |
+| `pp-export -Format Markdown` | Exporta en Markdown. |
+| `pp-export -Format Text` | Exporta en texto plano. |
+| `pp-export -Format Json` | Exporta en JSON. |
+| `pp-export-safe` | Exporta y aplica sanitización preventiva. |
+| `pp-open` | Abre el último archivo exportado o la última transcripción. |
+| `pp-panel` | Abre el panel flotante. |
 
-## Convención de commits
+### Rutas y variables temporales
 
-Se utilizarán mensajes de commit breves y descriptivos:
+Guardar una ruta con un nombre corto:
+
+```powershell
+pp-set RUTAC "C:\Proyectos\rutac_admin"
+```
+
+Ir a esa ruta:
+
+```powershell
+pp-go RUTAC
+```
+
+Ver todas las variables:
+
+```powershell
+pp-vars
+```
+
+Consultar una variable específica:
+
+```powershell
+pp-vars RUTAC
+```
+
+Eliminarla:
+
+```powershell
+pp-unset RUTAC
+```
+
+Las variables creadas también quedan disponibles como variables de entorno con el prefijo `PP_`:
+
+```powershell
+$env:PP_RUTAC
+```
+
+### Mantenimiento
+
+| Comando | Descripción |
+|---|---|
+| `pp-doctor` | Verifica archivos, configuración, perfil y comandos instalados. |
+| `pp-update` | Descarga la última versión, ejecuta pruebas y conserva la configuración. |
+| `pp-uninstall` | Desinstala PowerPrompt conservando sesiones, exportaciones y configuración. |
+| `pp-uninstall -RemoveData` | Desinstala PowerPrompt y elimina también los datos configurados. |
+
+## Actualización
+
+Después de la primera instalación, puedes actualizar PowerPrompt con:
+
+```powershell
+pp-update
+```
+
+El actualizador:
+
+1. Descarga la rama principal del repositorio.
+2. Ejecuta las pruebas automáticas.
+3. Crea un respaldo de los archivos instalados.
+4. Actualiza módulos, scripts, panel y recursos.
+5. Conserva tu archivo de configuración.
+
+Al terminar, ejecuta:
+
+```powershell
+pp-restart
+```
+
+O abre una terminal nueva.
+
+## Diagnóstico
+
+Para revisar la instalación:
+
+```powershell
+pp-doctor
+```
+
+El comando valida, entre otros puntos:
+
+- Carpeta de instalación.
+- Archivo de configuración.
+- Módulo principal y módulo de mantenimiento.
+- Reproductor de sonido.
+- Actualizador y desinstalador.
+- Bloque de carga en el perfil de PowerShell.
+- Disponibilidad de los comandos principales.
+
+## Archivos generados
+
+Por defecto, las sesiones y exportaciones se guardan dentro de:
 
 ```text
-docs: define project vision and initial MVP
-feat: add session startup greeting
-feat: add automatic transcript capture
-feat: add markdown session export
-fix: preserve existing PowerShell profile
+Documents\PS-PowerPrompt\Sessions
+Documents\PS-PowerPrompt\Exports
 ```
+
+Estas rutas pueden cambiarse durante la instalación.
+
+La instalación del programa se guarda en:
+
+```text
+%USERPROFILE%\.ps-powerprompt
+```
+
+## Exportación segura
+
+`pp-export-safe` intenta ocultar patrones frecuentes como:
+
+- Contraseñas.
+- API keys.
+- Tokens de acceso.
+- Encabezados `Authorization`.
+- Credenciales en algunas cadenas de conexión.
+
+Ejemplo:
+
+```text
+API_KEY=[REDACTED]
+Authorization: Bearer [REDACTED]
+```
+
+Esta protección es preventiva. Revisa siempre el archivo antes de compartirlo.
+
+## Menú contextual de Windows
+
+Si habilitaste esta opción durante la instalación, puedes hacer clic derecho sobre una carpeta o dentro del fondo del Explorador y seleccionar:
+
+```text
+Iniciar PowerPrompt desde aquí
+```
+
+PowerPrompt abrirá una terminal ubicada directamente en esa carpeta.
+
+## Sonidos
+
+- Al iniciar una sesión se reproduce `assets/aparicion.mp3`.
+- Las confirmaciones y errores usan sonidos del sistema de Windows.
+- No se reproduce sonido al escribir ni al presionar `Enter`.
+
+Los sonidos pueden activarse o desactivarse desde:
+
+```text
+%USERPROFILE%\.ps-powerprompt\config\settings.json
+```
+
+## Desinstalación
+
+Conservar sesiones, exportaciones y configuración:
+
+```powershell
+pp-uninstall
+```
+
+Eliminar también los datos configurados:
+
+```powershell
+pp-uninstall -RemoveData
+```
+
+El desinstalador solicita confirmación antes de continuar.
+
+## Pruebas del proyecto
+
+Desde la carpeta del repositorio:
+
+```powershell
+pwsh -NoLogo -NoProfile -File .\scripts\Test-PSPowerPrompt.ps1
+```
+
+Las pruebas revisan:
+
+- Archivos requeridos.
+- Sintaxis de scripts y módulos.
+- Validez del manifiesto.
+- Importación del módulo.
+- Disponibilidad de comandos.
+
+## Documentación adicional
+
+- [Referencia completa de comandos](docs/COMMANDS.md)
+- [Formatos de exportación](docs/EXPORTS.md)
+- [Guía de pruebas](docs/TESTING.md)
+- [Historial de cambios](CHANGELOG.md)
+
+## Solución de problemas
+
+### El comando `pp-*` no existe
+
+Cierra todas las ventanas de PowerShell y abre una nueva. Después ejecuta:
+
+```powershell
+pp-doctor
+```
+
+Si continúa el problema, ejecuta nuevamente `install.bat` desde la última versión del repositorio.
+
+### No se escucha el sonido de inicio
+
+Comprueba que existan los archivos:
+
+```powershell
+Test-Path "$HOME\.ps-powerprompt\assets\aparicion.mp3"
+Test-Path "$HOME\.ps-powerprompt\scripts\Play-PowerPromptStartupSound.ps1"
+```
+
+Ambos resultados deben ser `True`.
+
+### El saludo aparece dos veces
+
+Ejecuta nuevamente el instalador. Este limpia bloques anteriores y deja la carga de PowerPrompt en el perfil global del usuario.
+
+### PowerShell bloquea la ejecución del instalador
+
+Ejecuta:
+
+```powershell
+pwsh -NoLogo -NoProfile -ExecutionPolicy Bypass -File .\install.ps1
+```
+
+## Estado del proyecto
+
+`0.5.0-beta` cubre el MVP funcional: instalación, captura de sesiones, exportación, navegación por rutas, sonidos, ayuda, diagnóstico, actualización, desinstalación y sanitización preventiva.
+
+La siguiente etapa prevista es mejorar el análisis estructurado de comandos, salidas y errores, y posteriormente incorporar asistencia inteligente opcional.
 
 ## Licencia
 
