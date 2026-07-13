@@ -126,7 +126,7 @@ function Start-PPWorkSession {
     Write-Host "Sesion de trabajo iniciada: $sessionId" -ForegroundColor Green
     Write-Host "Directorio: $((Get-Location).Path)" -ForegroundColor DarkGray
     Write-Host "PowerShell: $($PSVersionTable.PSVersion)" -ForegroundColor DarkGray
-    Write-Host 'Usa pp-help para consultar los comandos disponibles.' -ForegroundColor DarkGray
+    Write-Host 'Usa pp-help para ver todos los comandos disponibles.' -ForegroundColor DarkGray
     Write-Host ''
     Invoke-PPSound Start
 }
@@ -179,14 +179,14 @@ function New-PPSession {
         try { Stop-Transcript | Out-Null } catch {}
     }
 
-    foreach ($name in @($script:SessionVariables.Keys)) {
-        if ($name -notin @('HOME','PWD','EXPORTS','SESSIONS')) {
-            Remove-Item -Path "Env:PP_$name" -ErrorAction SilentlyContinue
+    foreach ($key in @($script:SessionVariables.Keys)) {
+        if ($key -notin @('HOME','PWD','EXPORTS','SESSIONS')) {
+            Remove-Item -Path "Env:PP_$key" -ErrorAction SilentlyContinue
+            $script:SessionVariables.Remove($key)
         }
     }
 
     $script:Session = $null
-    $script:SessionVariables = [ordered]@{}
     Start-PPWorkSession
 }
 
@@ -194,10 +194,10 @@ function Restart-PPSession {
     [CmdletBinding()]
     param()
 
-    $savedVariables = [ordered]@{}
-    foreach ($entry in $script:SessionVariables.GetEnumerator()) {
-        if ($entry.Key -notin @('HOME','PWD','EXPORTS','SESSIONS')) {
-            $savedVariables[$entry.Key] = $entry.Value
+    $customVariables = [ordered]@{}
+    foreach ($key in $script:SessionVariables.Keys) {
+        if ($key -notin @('HOME','PWD','EXPORTS','SESSIONS')) {
+            $customVariables[$key] = $script:SessionVariables[$key]
         }
     }
 
@@ -206,16 +206,11 @@ function Restart-PPSession {
     }
 
     $script:Session = $null
-    $script:SessionVariables = [ordered]@{}
     Start-PPWorkSession
 
-    foreach ($entry in $savedVariables.GetEnumerator()) {
-        $script:SessionVariables[$entry.Key] = $entry.Value
-        Set-Item -Path "Env:PP_$($entry.Key)" -Value $entry.Value
-    }
-
-    if ($savedVariables.Count -gt 0) {
-        Write-Host "Variables restauradas: $($savedVariables.Count)" -ForegroundColor DarkGray
+    foreach ($key in $customVariables.Keys) {
+        $script:SessionVariables[$key] = $customVariables[$key]
+        Set-Item -Path "Env:PP_$key" -Value $customVariables[$key]
     }
 }
 
@@ -223,30 +218,22 @@ function Show-PPHelp {
     [CmdletBinding()]
     param()
 
-    Write-Host ''
-    Write-Host 'PS-PowerPrompt - Comandos disponibles' -ForegroundColor Cyan
-    Write-Host ''
-
     @(
-        [pscustomobject]@{ Comando = 'pp-help'; Descripcion = 'Muestra esta ayuda.' },
-        [pscustomobject]@{ Comando = 'pp-status'; Descripcion = 'Muestra el estado de la sesion actual.' },
-        [pscustomobject]@{ Comando = 'pp-new'; Descripcion = 'Finaliza la captura actual y crea una sesion nueva, limpiando variables personalizadas.' },
-        [pscustomobject]@{ Comando = 'pp-restart'; Descripcion = 'Reinicia la sesion y conserva las variables personalizadas.' },
-        [pscustomobject]@{ Comando = 'pp-stop'; Descripcion = 'Detiene la captura de la sesion actual.' },
-        [pscustomobject]@{ Comando = 'pp-export'; Descripcion = 'Exporta la sesion actual en el formato configurado.' },
-        [pscustomobject]@{ Comando = 'pp-open'; Descripcion = 'Abre el ultimo archivo exportado o de sesion.' },
-        [pscustomobject]@{ Comando = 'pp-panel'; Descripcion = 'Abre el panel flotante.' },
-        [pscustomobject]@{ Comando = 'pp-set NOMBRE RUTA'; Descripcion = 'Crea una variable de ruta para la sesion.' },
-        [pscustomobject]@{ Comando = 'pp-vars'; Descripcion = 'Lista las variables de la sesion.' },
-        [pscustomobject]@{ Comando = 'pp-unset NOMBRE'; Descripcion = 'Elimina una variable de la sesion.' },
-        [pscustomobject]@{ Comando = 'pp-go NOMBRE'; Descripcion = 'Cambia a una ruta guardada o indicada.' }
+        [pscustomobject]@{ Command='pp-status'; Description='Muestra el estado de la sesion actual.'; Example='pp-status' }
+        [pscustomobject]@{ Command='pp-new'; Description='Crea una sesion nueva y limpia variables personalizadas.'; Example='pp-new' }
+        [pscustomobject]@{ Command='pp-restart'; Description='Reinicia la sesion conservando variables personalizadas.'; Example='pp-restart' }
+        [pscustomobject]@{ Command='pp-export'; Description='Exporta la sesion actual.'; Example='pp-export -Format Markdown' }
+        [pscustomobject]@{ Command='pp-export-safe'; Description='Exporta y oculta patrones frecuentes de datos sensibles.'; Example='pp-export-safe' }
+        [pscustomobject]@{ Command='pp-open'; Description='Abre el ultimo archivo exportado.'; Example='pp-open' }
+        [pscustomobject]@{ Command='pp-panel'; Description='Abre el panel flotante.'; Example='pp-panel' }
+        [pscustomobject]@{ Command='pp-set'; Description='Guarda una ruta o valor temporal.'; Example='pp-set PROYECTO C:\Proyectos\App' }
+        [pscustomobject]@{ Command='pp-vars'; Description='Lista o consulta variables temporales.'; Example='pp-vars' }
+        [pscustomobject]@{ Command='pp-unset'; Description='Elimina una variable temporal.'; Example='pp-unset PROYECTO' }
+        [pscustomobject]@{ Command='pp-go'; Description='Cambia a una ruta o variable registrada.'; Example='pp-go PROYECTO' }
+        [pscustomobject]@{ Command='pp-doctor'; Description='Verifica la instalacion y los comandos.'; Example='pp-doctor' }
+        [pscustomobject]@{ Command='pp-update'; Description='Actualiza PowerPrompt desde GitHub.'; Example='pp-update' }
+        [pscustomobject]@{ Command='pp-uninstall'; Description='Desinstala PowerPrompt.'; Example='pp-uninstall' }
     ) | Format-Table -AutoSize -Wrap
-
-    Write-Host 'Ejemplos:' -ForegroundColor Yellow
-    Write-Host '  pp-set RUTAC "C:\Proyectos\rutac_admin"' -ForegroundColor DarkGray
-    Write-Host '  pp-go RUTAC' -ForegroundColor DarkGray
-    Write-Host '  pp-export -Format Markdown' -ForegroundColor DarkGray
-    Write-Host ''
 }
 
 function Convert-PPTranscriptToExport {
@@ -434,6 +421,7 @@ Set-Alias pp-new New-PPSession
 Set-Alias pp-restart Restart-PPSession
 Set-Alias pp-help Show-PPHelp
 Set-Alias pp-export Export-PPSession
+Set-Alias pp-export-safe Export-PPSafeSession
 Set-Alias pp-open Open-PPLatest
 Set-Alias pp-stop Stop-PPSession
 Set-Alias pp-panel Show-PPPanel
@@ -441,5 +429,8 @@ Set-Alias pp-set Set-PPSessionVariable
 Set-Alias pp-vars Get-PPSessionVariable
 Set-Alias pp-unset Remove-PPSessionVariable
 Set-Alias pp-go Set-PPLocation
+Set-Alias pp-update Invoke-PPUpdate
+Set-Alias pp-uninstall Invoke-PPUninstall
+Set-Alias pp-doctor Test-PPInstallation
 
-Export-ModuleMember -Function Start-PPWorkSession, Get-PPStatus, New-PPSession, Restart-PPSession, Show-PPHelp, Export-PPSession, Export-PPLatestTranscript, Open-PPLatest, Open-PPExportFolder, Stop-PPSession, Show-PPPanel, Set-PPSessionVariable, Get-PPSessionVariable, Remove-PPSessionVariable, Set-PPLocation -Alias pp-start, pp-status, pp-new, pp-restart, pp-help, pp-export, pp-open, pp-stop, pp-panel, pp-set, pp-vars, pp-unset, pp-go
+Export-ModuleMember -Function Start-PPWorkSession, Get-PPStatus, New-PPSession, Restart-PPSession, Show-PPHelp, Export-PPSession, Export-PPLatestTranscript, Open-PPLatest, Open-PPExportFolder, Stop-PPSession, Show-PPPanel, Set-PPSessionVariable, Get-PPSessionVariable, Remove-PPSessionVariable, Set-PPLocation, Protect-PPText, Export-PPSafeSession, Invoke-PPUpdate, Invoke-PPUninstall, Test-PPInstallation -Alias pp-start, pp-status, pp-new, pp-restart, pp-help, pp-export, pp-export-safe, pp-open, pp-stop, pp-panel, pp-set, pp-vars, pp-unset, pp-go, pp-update, pp-uninstall, pp-doctor
