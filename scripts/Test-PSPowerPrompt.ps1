@@ -70,7 +70,7 @@ if (Test-Path -LiteralPath $manifestPath) {
         Import-Module $manifestPath -Force
 
         $requiredCommands = @(
-            'pp-status','pp-export','pp-export-safe','pp-open','pp-stop','pp-panel',
+            'pp-status','pp-export','pp-export-safe','pp-export-jsonl','pp-open','pp-stop','pp-panel',
             'pp-set','pp-vars','pp-unset','pp-go','pp-new','pp-restart','pp-help',
             'pp-update','pp-uninstall','pp-doctor'
         )
