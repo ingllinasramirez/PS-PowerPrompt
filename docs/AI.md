@@ -1,8 +1,19 @@
 # Asistencia inteligente de PS-PowerPrompt
 
-La version 0.6.0 agrega una capa opcional de asistencia inteligente. PowerPrompt no ejecuta automaticamente los comandos sugeridos por un modelo.
+La version 0.7.0 incorpora asistencia inteligente local mediante Ollama. PowerPrompt no ejecuta automaticamente los comandos sugeridos por un modelo.
 
-## Comandos
+## Instalacion automatica
+
+Al ejecutar `install.ps1` y aceptar la asistencia inteligente, el instalador:
+
+1. Detecta Ollama.
+2. Si no esta instalado, lo instala con `winget`.
+3. Inicia la API local en `http://127.0.0.1:11434`.
+4. Descarga el modelo `qwen2.5-coder:3b`.
+5. Realiza una consulta de validacion.
+6. Configura `Ollama` como proveedor predeterminado.
+
+Despues de la instalacion basta con ejecutar:
 
 ```powershell
 pp-ask "Como reviso los puertos ocupados en Windows?"
@@ -13,16 +24,24 @@ pp-ai-status
 
 ## Proveedores
 
-- `WindowsCopilot`: abre Copilot de Windows y copia el prompt al portapapeles. La respuesta se gestiona en la aplicacion de Copilot.
+- `Ollama`: proveedor local, gratuito y predeterminado. La respuesta se muestra directamente en PowerShell.
+- `WindowsCopilot`: abre Copilot y copia el prompt; PowerPrompt no puede recuperar su respuesta.
 - `OpenAI`: API compatible con Chat Completions.
 - `DeepSeek`: API compatible con OpenAI.
 - `Gemini`: API `generateContent`.
-- `HuggingFace`: router de inferencia compatible con Chat Completions.
-- `Custom`: cualquier servicio compatible con el formato de Chat Completions.
+- `HuggingFace`: router compatible con Chat Completions.
+- `Custom`: endpoint compatible con Chat Completions.
 
-## Configuracion
+## Cambiar el modelo local
 
-La clave nunca se guarda dentro de `settings.json`. `pp-ai-config` la almacena como variable de entorno del usuario.
+```powershell
+ollama pull qwen2.5-coder:7b
+pp-ai-config Ollama -Model "qwen2.5-coder:7b" -SetDefault
+```
+
+## Configurar proveedores externos
+
+Las claves nunca se guardan dentro de `settings.json`; se almacenan como variables de entorno del usuario.
 
 ```powershell
 pp-ai-config OpenAI -ApiKey "TU_CLAVE" -Model "gpt-4.1-mini" -SetDefault
@@ -31,29 +50,9 @@ pp-ai-config Gemini -ApiKey "TU_CLAVE" -Model "gemini-2.5-flash" -SetDefault
 pp-ai-config HuggingFace -ApiKey "TU_TOKEN" -Model "Qwen/Qwen2.5-Coder-32B-Instruct" -SetDefault
 ```
 
-Para un endpoint compatible personalizado:
-
-```powershell
-pp-ai-config Custom `
-  -ApiKey "TU_CLAVE" `
-  -Endpoint "https://servidor.example/v1/chat/completions" `
-  -Model "modelo-local" `
-  -SetDefault
-```
-
-## Variables de entorno
-
-| Proveedor | Variable |
-|---|---|
-| OpenAI | `PP_OPENAI_API_KEY` |
-| DeepSeek | `PP_DEEPSEEK_API_KEY` |
-| Gemini | `PP_GEMINI_API_KEY` |
-| HuggingFace | `PP_HUGGINGFACE_API_KEY` |
-| Custom | `PP_CUSTOM_AI_API_KEY` |
-
 ## Seguridad
 
 - Revisa siempre los comandos sugeridos.
 - No pegues secretos dentro de `pp-ask`.
 - Usa `pp-export-safe` antes de compartir una sesion.
-- PowerPrompt no ejecuta de forma automatica las respuestas generadas por IA.
+- PowerPrompt no ejecuta automaticamente las respuestas generadas por IA.
