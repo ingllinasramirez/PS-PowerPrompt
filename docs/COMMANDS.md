@@ -1,6 +1,6 @@
 # Referencia de comandos de PS-PowerPrompt
 
-Esta guía describe los comandos disponibles en la versión actual del módulo.
+Esta guía describe los comandos disponibles en PS-PowerPrompt `0.7.0`.
 
 ## Sesiones
 
@@ -14,9 +14,7 @@ pp-status
 
 ### `pp-new`
 
-Finaliza la captura actual y crea una sesión completamente nueva en la misma ventana.
-
-Las variables personalizadas creadas con `pp-set` se eliminan.
+Finaliza la captura actual y crea una sesión nueva. Elimina las variables personalizadas creadas con `pp-set`.
 
 ```powershell
 pp-new
@@ -24,7 +22,7 @@ pp-new
 
 ### `pp-restart`
 
-Reinicia la sesión en la misma ventana y conserva las variables personalizadas creadas con `pp-set`.
+Reinicia la sesión conservando las variables personalizadas.
 
 ```powershell
 pp-restart
@@ -32,7 +30,7 @@ pp-restart
 
 ### `pp-stop`
 
-Detiene la captura de la sesión actual sin cerrar PowerShell.
+Detiene la captura sin cerrar PowerShell.
 
 ```powershell
 pp-stop
@@ -40,7 +38,7 @@ pp-stop
 
 ### `pp-start`
 
-Inicia la captura cuando no existe una sesión activa.
+Inicia una nueva captura cuando no existe una sesión activa.
 
 ```powershell
 pp-start
@@ -50,7 +48,7 @@ pp-start
 
 ### `pp-help`
 
-Muestra dentro de PowerShell la lista de comandos, descripciones y ejemplos principales.
+Muestra la lista de comandos, descripciones, ejemplos y el proveedor de IA local recomendado.
 
 ```powershell
 pp-help
@@ -58,7 +56,7 @@ pp-help
 
 ### `pp-doctor`
 
-Verifica que la instalación, configuración, perfil, scripts y comandos principales estén disponibles.
+Verifica instalación, configuración, perfil, scripts y comandos principales.
 
 ```powershell
 pp-doctor
@@ -68,15 +66,10 @@ pp-doctor
 
 ### `pp-export`
 
-Exporta la sesión actual usando el formato predeterminado configurado durante la instalación.
+Exporta la sesión actual usando el formato predeterminado.
 
 ```powershell
 pp-export
-```
-
-También se puede indicar el formato:
-
-```powershell
 pp-export -Format Markdown
 pp-export -Format Text
 pp-export -Format Json
@@ -84,18 +77,25 @@ pp-export -Format Json
 
 ### `pp-export-safe`
 
-Exporta la sesión y aplica una limpieza preventiva para ocultar patrones frecuentes de información sensible, como contraseñas, tokens, API keys y encabezados de autorización.
+Exporta la sesión y oculta patrones frecuentes de contraseñas, tokens, API keys y encabezados de autorización.
 
 ```powershell
 pp-export-safe
 pp-export-safe -Format Markdown
 ```
 
-La sanitización es una protección de apoyo y no reemplaza la revisión humana antes de compartir un archivo.
+### `pp-export-jsonl`
+
+Exporta la sesión como eventos JSONL, útil para análisis automatizado, agentes y procesamiento por lotes.
+
+```powershell
+pp-export-jsonl
+pp-export-jsonl -Sanitize
+```
 
 ### `pp-open`
 
-Abre el último archivo exportado. Si no existe, intenta abrir la última transcripción.
+Abre el último archivo exportado o la última transcripción disponible.
 
 ```powershell
 pp-open
@@ -103,23 +103,23 @@ pp-open
 
 ### `pp-panel`
 
-Abre el panel flotante de PS-PowerPrompt.
+Abre el panel flotante.
 
 ```powershell
 pp-panel
 ```
 
-## Variables de sesión
+## Variables y navegación
 
 ### `pp-set`
 
-Guarda una ruta o valor con un nombre corto durante la sesión.
+Guarda una ruta o valor con un nombre corto.
 
 ```powershell
 pp-set RUTAC "C:\Proyectos\rutac_admin"
 ```
 
-También crea una variable de entorno con el prefijo `PP_`:
+También crea una variable de entorno:
 
 ```powershell
 $env:PP_RUTAC
@@ -127,15 +127,10 @@ $env:PP_RUTAC
 
 ### `pp-vars`
 
-Lista todas las variables disponibles.
+Lista o consulta variables temporales.
 
 ```powershell
 pp-vars
-```
-
-Consultar una variable:
-
-```powershell
 pp-vars RUTAC
 ```
 
@@ -149,40 +144,130 @@ pp-unset RUTAC
 
 ### `pp-go`
 
-Cambia el directorio actual usando una variable o una ruta directa.
+Cambia el directorio usando una variable o una ruta directa.
 
 ```powershell
 pp-go RUTAC
 pp-go "C:\Proyectos\otro-proyecto"
 ```
 
+## Inteligencia artificial
+
+### `pp-ask`
+
+Envía una consulta al proveedor configurado. Con Ollama, la respuesta aparece directamente en la terminal.
+
+```powershell
+pp-ask "Explícame la estructura de este proyecto"
+pp-ask "Genera un comando seguro para listar archivos grandes"
+```
+
+También se puede seleccionar un proveedor específico:
+
+```powershell
+pp-ask "Explica este error" -Provider Ollama
+pp-ask "Explica este error" -Provider Gemini
+```
+
+### `pp-explain`
+
+Explica un comando de PowerShell, sus partes, riesgos y posibles alternativas.
+
+```powershell
+pp-explain "Get-ChildItem -Recurse | Sort-Object Length -Descending"
+```
+
+### `pp-fix`
+
+Analiza el último error almacenado en `$Error` y propone una solución segura.
+
+```powershell
+pp-fix
+pp-fix -Provider Ollama
+```
+
+### `pp-ai-status`
+
+Muestra los proveedores registrados, modelo configurado, disponibilidad de credenciales y proveedor predeterminado.
+
+```powershell
+pp-ai-status
+```
+
+### `pp-ai-config`
+
+Configura un proveedor y opcionalmente lo establece como predeterminado.
+
+Ollama local:
+
+```powershell
+pp-ai-config Ollama -Model "qwen2.5-coder:3b" -SetDefault
+```
+
+OpenAI:
+
+```powershell
+pp-ai-config OpenAI -ApiKey "TU_CLAVE" -Model "gpt-4.1-mini" -SetDefault
+```
+
+DeepSeek:
+
+```powershell
+pp-ai-config DeepSeek -ApiKey "TU_CLAVE" -Model "deepseek-chat" -SetDefault
+```
+
+Gemini:
+
+```powershell
+pp-ai-config Gemini -ApiKey "TU_CLAVE" -Model "gemini-2.5-flash" -SetDefault
+```
+
+Hugging Face:
+
+```powershell
+pp-ai-config HuggingFace -ApiKey "TU_TOKEN" -Model "Qwen/Qwen2.5-Coder-32B-Instruct" -SetDefault
+```
+
+Proveedor personalizado:
+
+```powershell
+pp-ai-config Custom `
+    -ApiKey "TU_CLAVE" `
+    -Endpoint "https://servidor.example/v1/chat/completions" `
+    -Model "modelo-personalizado" `
+    -SetDefault
+```
+
+## Proveedores disponibles
+
+| Proveedor | Respuesta directa | Requiere clave |
+|---|---:|---:|
+| Ollama | Sí | No |
+| WindowsCopilot | No | No |
+| OpenAI | Sí | Sí |
+| DeepSeek | Sí | Sí |
+| Gemini | Sí | Sí |
+| HuggingFace | Sí | Sí |
+| Custom | Sí | Depende del servicio |
+
 ## Mantenimiento
 
 ### `pp-update`
 
-Descarga la rama principal del repositorio, ejecuta las pruebas automáticas, crea un respaldo y actualiza los archivos instalados sin reemplazar la configuración del usuario.
+Descarga la rama principal, ejecuta pruebas, crea un respaldo y actualiza la instalación.
 
 ```powershell
 pp-update
 ```
 
-Después de actualizar, ejecuta `pp-restart` o abre una terminal nueva.
-
 ### `pp-uninstall`
 
-Retira el módulo, scripts, panel, menú contextual y bloque del perfil. De forma predeterminada conserva la configuración y los archivos de sesiones/exportaciones.
+Desinstala el módulo, scripts, panel, menú contextual y bloque del perfil.
 
 ```powershell
 pp-uninstall
-```
-
-Para eliminar también la configuración y las carpetas de datos configuradas:
-
-```powershell
 pp-uninstall -RemoveData
 ```
-
-El comando pide confirmación antes de continuar.
 
 ## Diferencia entre `pp-new` y `pp-restart`
 
@@ -190,5 +275,3 @@ El comando pide confirmación antes de continuar.
 |---|---:|---:|
 | `pp-new` | Sí | No |
 | `pp-restart` | Sí | Sí |
-
-Ambos comandos permiten comenzar otra sesión sin cerrar ni volver a abrir PowerShell.
