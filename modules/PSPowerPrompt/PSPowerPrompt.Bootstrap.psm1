@@ -34,7 +34,7 @@ function Invoke-PPAIRequest { [CmdletBinding()] param([Parameter(Mandatory,Posit
 function Invoke-PPExplainCommand { [CmdletBinding()] param([Parameter(Mandatory,Position=0)][string]$Command,[string]$Provider) & 'PSPowerPrompt.AI\Invoke-PPExplainCommand' -Command $Command -Provider $Provider }
 function Invoke-PPFixLastError { [CmdletBinding()] param([string]$Provider) & 'PSPowerPrompt.AI\Invoke-PPFixLastError' -Provider $Provider }
 function Get-PPAIStatus { [CmdletBinding()] param() & 'PSPowerPrompt.AI\Get-PPAIStatus' }
-function Set-PPAIProvider { [CmdletBinding()] param([Parameter(Mandatory,Position=0)][ValidateSet('WindowsCopilot','OpenAI','DeepSeek','Gemini','HuggingFace','Custom')][string]$Provider,[string]$ApiKey,[string]$Model,[string]$Endpoint,[switch]$SetDefault) & 'PSPowerPrompt.AI\Set-PPAIProvider' @PSBoundParameters }
+function Set-PPAIProvider { [CmdletBinding()] param([Parameter(Mandatory,Position=0)][ValidateSet('Ollama','WindowsCopilot','OpenAI','DeepSeek','Gemini','HuggingFace','Custom')][string]$Provider,[string]$ApiKey,[string]$Model,[string]$Endpoint,[switch]$SetDefault) & 'PSPowerPrompt.AI\Set-PPAIProvider' @PSBoundParameters }
 function Show-PPCorporateWelcome { [CmdletBinding()] param() & 'PSPowerPrompt.Branding\Show-PPCorporateWelcome' }
 
 function Show-PPHelp {
@@ -56,7 +56,7 @@ function Show-PPHelp {
         [pscustomobject]@{Command='pp-explain';Description='Explica un comando y sus riesgos.';Example='pp-explain "Get-Process"'}
         [pscustomobject]@{Command='pp-fix';Description='Analiza el ultimo error.';Example='pp-fix'}
         [pscustomobject]@{Command='pp-ai-status';Description='Muestra el estado de proveedores IA.';Example='pp-ai-status'}
-        [pscustomobject]@{Command='pp-ai-config';Description='Configura un proveedor IA.';Example='pp-ai-config OpenAI -ApiKey "..." -SetDefault'}
+        [pscustomobject]@{Command='pp-ai-config';Description='Configura un proveedor IA.';Example='pp-ai-config Ollama -Model "qwen2.5-coder:3b" -SetDefault'}
         [pscustomobject]@{Command='pp-doctor';Description='Verifica la instalacion.';Example='pp-doctor'}
         [pscustomobject]@{Command='pp-update';Description='Actualiza PowerPrompt.';Example='pp-update'}
         [pscustomobject]@{Command='pp-uninstall';Description='Desinstala PowerPrompt.';Example='pp-uninstall'}
