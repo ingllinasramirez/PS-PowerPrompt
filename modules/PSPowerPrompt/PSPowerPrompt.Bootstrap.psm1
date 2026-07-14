@@ -38,29 +38,46 @@ function Set-PPAIProvider { [CmdletBinding()] param([Parameter(Mandatory,Positio
 function Show-PPCorporateWelcome { [CmdletBinding()] param() & 'PSPowerPrompt.Branding\Show-PPCorporateWelcome' }
 
 function Show-PPHelp {
-    [CmdletBinding()] param()
+    [CmdletBinding()]
+    param()
+
+    Write-Host ''
+    Write-Host 'PS-PowerPrompt 0.7.0' -ForegroundColor Cyan
+    Write-Host 'IA local predeterminada: Ollama / qwen2.5-coder:3b' -ForegroundColor Green
+    Write-Host 'Las respuestas de Ollama aparecen directamente en esta terminal.' -ForegroundColor DarkGray
+    Write-Host ''
+
     @(
+        [pscustomobject]@{Command='pp-start';Description='Inicia una captura cuando no existe una sesion activa.';Example='pp-start'}
         [pscustomobject]@{Command='pp-status';Description='Muestra el estado de la sesion actual.';Example='pp-status'}
-        [pscustomobject]@{Command='pp-new';Description='Crea una sesion nueva.';Example='pp-new'}
-        [pscustomobject]@{Command='pp-restart';Description='Reinicia la sesion.';Example='pp-restart'}
+        [pscustomobject]@{Command='pp-new';Description='Crea una sesion nueva y limpia variables personalizadas.';Example='pp-new'}
+        [pscustomobject]@{Command='pp-restart';Description='Reinicia la sesion conservando variables.';Example='pp-restart'}
+        [pscustomobject]@{Command='pp-stop';Description='Detiene la captura actual.';Example='pp-stop'}
         [pscustomobject]@{Command='pp-export';Description='Exporta la sesion actual.';Example='pp-export -Format Markdown'}
         [pscustomobject]@{Command='pp-export-safe';Description='Exporta ocultando datos sensibles.';Example='pp-export-safe'}
         [pscustomobject]@{Command='pp-export-jsonl';Description='Exporta como eventos JSONL.';Example='pp-export-jsonl -Sanitize'}
         [pscustomobject]@{Command='pp-open';Description='Abre el ultimo archivo exportado.';Example='pp-open'}
         [pscustomobject]@{Command='pp-panel';Description='Abre el panel flotante.';Example='pp-panel'}
         [pscustomobject]@{Command='pp-set';Description='Guarda una ruta o valor temporal.';Example='pp-set PROYECTO C:\Proyectos\App'}
-        [pscustomobject]@{Command='pp-vars';Description='Lista variables temporales.';Example='pp-vars'}
+        [pscustomobject]@{Command='pp-vars';Description='Lista o consulta variables temporales.';Example='pp-vars'}
         [pscustomobject]@{Command='pp-unset';Description='Elimina una variable temporal.';Example='pp-unset PROYECTO'}
         [pscustomobject]@{Command='pp-go';Description='Cambia a una ruta registrada.';Example='pp-go PROYECTO'}
-        [pscustomobject]@{Command='pp-ask';Description='Consulta al proveedor de IA.';Example='pp-ask "Explica este proyecto"'}
-        [pscustomobject]@{Command='pp-explain';Description='Explica un comando y sus riesgos.';Example='pp-explain "Get-Process"'}
-        [pscustomobject]@{Command='pp-fix';Description='Analiza el ultimo error.';Example='pp-fix'}
-        [pscustomobject]@{Command='pp-ai-status';Description='Muestra el estado de proveedores IA.';Example='pp-ai-status'}
-        [pscustomobject]@{Command='pp-ai-config';Description='Configura un proveedor IA.';Example='pp-ai-config Ollama -Model "qwen2.5-coder:3b" -SetDefault'}
-        [pscustomobject]@{Command='pp-doctor';Description='Verifica la instalacion.';Example='pp-doctor'}
-        [pscustomobject]@{Command='pp-update';Description='Actualiza PowerPrompt.';Example='pp-update'}
+        [pscustomobject]@{Command='pp-ask';Description='Consulta a la IA y muestra la respuesta en PowerShell.';Example='pp-ask "Explica este proyecto"'}
+        [pscustomobject]@{Command='pp-explain';Description='Explica un comando, riesgos y alternativas.';Example='pp-explain "Get-Process"'}
+        [pscustomobject]@{Command='pp-fix';Description='Analiza el ultimo error de PowerShell.';Example='pp-fix'}
+        [pscustomobject]@{Command='pp-ai-status';Description='Muestra proveedores, modelos y disponibilidad.';Example='pp-ai-status'}
+        [pscustomobject]@{Command='pp-ai-config';Description='Configura o cambia el proveedor de IA.';Example='pp-ai-config Ollama -Model "qwen2.5-coder:3b" -SetDefault'}
+        [pscustomobject]@{Command='pp-doctor';Description='Verifica la instalacion y comandos.';Example='pp-doctor'}
+        [pscustomobject]@{Command='pp-update';Description='Actualiza PowerPrompt desde GitHub.';Example='pp-update'}
         [pscustomobject]@{Command='pp-uninstall';Description='Desinstala PowerPrompt.';Example='pp-uninstall'}
     ) | Format-Table -AutoSize -Wrap
+
+    Write-Host ''
+    Write-Host 'Ejemplos de IA local' -ForegroundColor Yellow
+    Write-Host '  pp-ask "Como listar los archivos mas pesados de esta carpeta"' -ForegroundColor White
+    Write-Host '  pp-explain "Get-ChildItem -Recurse"' -ForegroundColor White
+    Write-Host '  pp-fix' -ForegroundColor White
+    Write-Host ''
 }
 
 Set-Alias pp-start Start-PPWorkSession -Force
