@@ -1,6 +1,6 @@
 @{
     RootModule = 'PSPowerPrompt.psm1'
-    NestedModules = @('PSPowerPrompt.Maintenance.psm1', 'PSPowerPrompt.AI.psm1')
+    NestedModules = @('PSPowerPrompt.Maintenance.psm1', 'PSPowerPrompt.AI.psm1', 'PSPowerPrompt.Branding.psm1')
     ModuleVersion = '0.6.0'
     GUID = '8c15fb86-5578-4c80-9cad-a7d244f6fc4f'
     Author = 'Ingeniero Juan Pablo Llinas Ramirez'
@@ -10,6 +10,7 @@
     PowerShellVersion = '7.0'
     FunctionsToExport = @(
         'Start-PPWorkSession',
+        'Show-PPCorporateWelcome',
         'Get-PPStatus',
         'New-PPSession',
         'Restart-PPSession',
