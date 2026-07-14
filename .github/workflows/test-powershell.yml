@@ -1,0 +1,23 @@
+name: Validar PS-PowerPrompt
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  test:
+    runs-on: windows-latest
+
+    steps:
+      - name: Descargar repositorio
+        uses: actions/checkout@v4
+
+      - name: Mostrar version de PowerShell
+        shell: pwsh
+        run: $PSVersionTable
+
+      - name: Ejecutar pruebas del proyecto
+        shell: pwsh
+        run: .\scripts\Test-PSPowerPrompt.ps1
