@@ -13,6 +13,7 @@ $requiredFiles = @(
     'install.bat',
     'install.ps1',
     'modules\PSPowerPrompt\PSPowerPrompt.psd1',
+    'modules\PSPowerPrompt\PSPowerPrompt.Bootstrap.psm1',
     'modules\PSPowerPrompt\PSPowerPrompt.psm1',
     'modules\PSPowerPrompt\PSPowerPrompt.Maintenance.psm1',
     'modules\PSPowerPrompt\PSPowerPrompt.AI.psm1',
